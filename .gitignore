@@ -1,3 +1,4 @@
 node_modules/
 .env
-*.log
+*.lognode_modules/
+.env
