@@ -6,26 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Debug Relay Race | IT Fest 2026</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script type="module" crossorigin src="/assets/index-CeXJvsWJ.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-C2OzqD59.css">
+  <script type="module" crossorigin src="/assets/index-DCttBZW-.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CrloArqq.css">
 </head>
 
 <body>
 
   <div id="notification-container"></div>
 
-  <header
-    style="padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 100;">
-    <h1 id="logo" style="font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; cursor: pointer;">DEBUG RELAY 🏎️💨
-    </h1>
-    <div id="user-info" class="hidden" style="display: flex; gap: 1rem; align-items: center;">
-      <span id="user-email-display"
-        style="background: rgba(255,255,255,0.1); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem;"></span>
-      <button id="admin-shortcut-btn" class="hidden"
-        style="padding: 0.4rem 1rem; font-size: 0.8rem; background: var(--primary); width: auto; border-radius: 20px;">Admin
-        Panel</button>
-      <button id="logout-btn"
-        style="padding: 0.4rem 1rem; font-size: 0.8rem; background: #ef4444; width: auto; border-radius: 20px;">Logout</button>
+  <header id="main-header" class="main-header">
+    <h1 id="logo" class="logo">DEBUG RELAY 🏎️💨</h1>
+    <div id="user-info" class="user-info hidden">
+      <span id="user-email-display" class="user-email-badge"></span>
+      <button id="admin-shortcut-btn" class="header-btn hidden" style="background: var(--primary);">Admin Panel</button>
+      <button id="logout-btn" class="header-btn" style="background: #ef4444;">Logout</button>
     </div>
   </header>
 
