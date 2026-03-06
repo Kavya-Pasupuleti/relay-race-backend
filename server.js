@@ -105,6 +105,18 @@ app.get('/admin/users', adminAuth, async (req, res) => {
     }
 });
 
+// 6. DELETE /admin/users/:id → Delete a user (from admin panel)
+app.delete('/admin/users/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedUser = await Participant.findByIdAndDelete(id);
+        if (!deletedUser) return res.status(404).json({ message: 'User not found' });
+        res.json({ message: 'User deleted successfully', user: deletedUser });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting user', error: error.message });
+    }
+});
+
 // --- Serve Frontend ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
