@@ -52,7 +52,6 @@ const htmlPreview = document.getElementById('html-preview');
 function init() {
     setupEventListeners();
     updateDashboardUI();
-    createFloatingSymbols();
 
     // Landing page confetti celebration
     confetti({
@@ -62,19 +61,6 @@ function init() {
     });
 }
 
-function createFloatingSymbols() {
-    const container = document.getElementById('landing-screen');
-    const symbols = ['{ }', '< />', '(?)', '[ ]', '=>', '==', 'func', 'def', 'SELECT', 'print'];
-    for (let i = 0; i < 15; i++) {
-        const span = document.createElement('span');
-        span.className = 'floating-symbol';
-        span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        span.style.left = `${Math.random() * 100}%`;
-        span.style.animationDelay = `${Math.random() * 15}s`;
-        span.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
-        container.appendChild(span);
-    }
-}
 
 // --- NOTIFICATIONS ---
 function showToast(message, type = 'success') {
