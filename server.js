@@ -56,43 +56,6 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// 1b. POST /login → Authenticate user
-app.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // 1. Input Validation: Check if fields are empty
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password required' });
-        }
-
-        // 2. Backend Validation: Check if user exists
-        const user = await Participant.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // 3. Backend Validation: Check if password is correct
-        const ok = await bcrypt.compare(password, user.password);
-        if (!ok) {
-            return res.status(401).json({ message: 'Incorrect password' });
-        }
-
-        // 4. Success Response
-        res.json({
-            message: 'Login successful',
-            participant: {
-                name: user.name,
-                email: user.email,
-                id: user._id
-            }
-        });
-    } catch (err) {
-        console.error('Login error', err);
-        res.status(500).json({ message: 'Server error', error: err.message });
-    }
-});
-
 // 2. PUT /complete/:email → Save totalTime when Level 4 is completed
 app.put('/complete/:email', async (req, res) => {
     try {

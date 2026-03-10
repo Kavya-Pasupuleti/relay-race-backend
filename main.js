@@ -1,6 +1,8 @@
 import { problems as initialProblems } from './src/problems.js';
 import confetti from 'canvas-confetti';
 
+const API_URL = "https://relay-race-backend-1.onrender.com";
+
 // --- STATE MANAGEMENT ---
 let currentUser = null;
 let currentScore = 0;
@@ -22,6 +24,7 @@ const adminShortcutBtn = document.getElementById('admin-shortcut-btn');
 
 // Auth Form
 const authTitle = document.getElementById('auth-title');
+const authForm = document.getElementById('auth-form'); // Added form reference
 const authActionBtn = document.getElementById('auth-action-btn');
 const toggleAuthMode = document.getElementById('toggle-auth-mode');
 const authToggleText = document.getElementById('auth-toggle-text');
@@ -50,7 +53,9 @@ const htmlPreview = document.getElementById('html-preview');
 
 // --- INITIALIZATION ---
 function init() {
-    // check for existing login state
+    setupEventListeners();
+    updateDashboardUI();
+
     const stored = localStorage.getItem('currentUser');
     if (stored) {
         currentUser = JSON.parse(stored);
@@ -58,13 +63,12 @@ function init() {
         hideAllScreens();
         dashboardScreen.classList.remove('hidden');
         userInfo.classList.remove('hidden');
+        updateDashboardUI();
     } else {
         hideAllScreens();
         landingScreen.classList.remove('hidden');
+        userInfo.classList.add('hidden');
     }
-
-    setupEventListeners();
-    updateDashboardUI();
 
     // Landing page confetti celebration
     confetti({
@@ -177,16 +181,22 @@ function setupEventListeners() {
         setAuthMode(!isRegistering);
     });
 
-    authActionBtn.addEventListener('click', async (e) => {
+    authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = emailInput.value;
-        const pass = passwordInput.value;
-        const name = nameInput.value;
-        const college = collegeInput ? collegeInput.value : "";
-        const phone = phoneInput ? phoneInput.value : "";
+
+        const email = emailInput.value.trim();
+        const pass = passwordInput.value.trim();
+        const name = nameInput ? nameInput.value.trim() : "";
+        const college = collegeInput ? collegeInput.value.trim() : "";
+        const phone = phoneInput ? phoneInput.value.trim() : "";
+
+        // 1. Mandatory Input Validation
+        if (!email || !pass) {
+            return showPopup("Please enter email and password", "error");
+        }
 
         if (isRegistering) {
-            if (!email || !pass || !name || !college || !phone) {
+            if (!name || !college || !phone) {
                 return showPopup("Please fill all fields", "error");
             }
             if (pass !== confirmPasswordInput.value) {
@@ -213,7 +223,7 @@ function setupEventListeners() {
                 showPopup("Server error. Please check if backend is running.", "error");
             }
         } else {
-            // login flow
+            // Login flow
             if (isAdminTarget && email === 'admin@debug.com' && pass === 'admin123') {
                 isAdmin = true;
                 hideAllScreens();
@@ -228,18 +238,23 @@ function setupEventListeners() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password: pass })
                     });
+
                     const data = await response.json();
+
                     if (response.ok) {
                         currentUser = data.participant;
-                        // persist login so user can't bypass
+                        // Store Login State in localStorage
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         userEmailDisplay.textContent = currentUser.email;
+
+                        // Redirect Logic: ONLY on success
                         hideAllScreens();
                         dashboardScreen.classList.remove('hidden');
                         userInfo.classList.remove('hidden');
                         showPopup(`Welcome ${currentUser.name}! Start the race.`, "success");
                         updateDashboardUI();
                     } else {
+                        // Backend Validation handling
                         showPopup(data.message || "Login failed", "error");
                     }
                 } catch (error) {
@@ -255,7 +270,7 @@ function setupEventListeners() {
     // helper: ensure user is logged in before accessing protected functionality
     function requireLogin() {
         if (!currentUser) {
-            showToast('Please log in to continue', 'error');
+            alert('Please log in to continue');
             hideAllScreens();
             authScreen.classList.remove('hidden');
             return false;
@@ -305,6 +320,7 @@ function setupEventListeners() {
 function logout() {
     currentUser = null;
     isAdmin = false;
+    localStorage.removeItem('currentUser'); // Clear session
     activeProblemSet = null; // Reset for next contestant
     unlockedLevels = 1;
     currentScore = 0;
@@ -458,7 +474,7 @@ function checkAnswer() {
             console.log(`⏱️ Race Finished! Total Time: ${totalTimeInSeconds.toFixed(2)}s`);
 
             // Save to Backend
-            fetch(`https://relay-race-backend-1.onrender.com/complete/${currentUser.email}`, {
+            fetch(`${API_URL}/complete/${currentUser.email}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ totalTime: totalTimeInSeconds })
@@ -503,7 +519,7 @@ function initAdminPanel() {
     // Fetch All Registered Users
     const fetchRegisteredUsers = async () => {
         try {
-            const response = await fetch('https://relay-race-backend-1.onrender.com/admin/users', {
+            const response = await fetch(`${API_URL}/admin/users`, {
                 headers: { 'x-admin-token': 'admin123' }
             });
             if (!response.ok) throw new Error('Failed to list users');
@@ -526,7 +542,7 @@ function initAdminPanel() {
                     const id = btn.dataset.id;
                     if (confirm('Are you sure you want to delete this user?')) {
                         try {
-                            const res = await fetch(`https://relay-race-backend-1.onrender.com/admin/users/${id}`, {
+                            const res = await fetch(`${API_URL}/admin/users/${id}`, {
                                 method: 'DELETE',
                                 headers: { 'x-admin-token': 'admin123' }
                             });
@@ -566,7 +582,7 @@ function initAdminPanel() {
     // Fetch Live Leaderboard
     const fetchLeaderboard = async () => {
         try {
-            const response = await fetch('https://relay-race-backend-1.onrender.com/admin/participants');
+            const response = await fetch(`${API_URL}/admin/participants`);
             const participants = await response.json();
 
             usersList.innerHTML = participants.length > 0 ? participants.map(u => `
@@ -587,7 +603,7 @@ function initAdminPanel() {
                 btn.addEventListener('click', async () => {
                     const id = btn.dataset.id;
                     try {
-                        const res = await fetch(`https://relay-race-backend-1.onrender.com/admin/mark-winner/${id}`, { method: 'PUT' });
+                        const res = await fetch(`${API_URL}/admin/mark-winner/${id}`, { method: 'PUT' });
                         if (res.ok) {
                             showToast("🏆 Participant marked as winner successfully!", "success");
                             fetchLeaderboard(); // Refresh

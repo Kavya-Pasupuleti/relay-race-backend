@@ -38,7 +38,7 @@
   <!-- Auth Screen -->
   <section id="auth-screen" class="auth-container fade-in hidden">
     <h1 id="auth-title" class="festive-title">Start the Race</h1>
-    <div id="auth-form">
+    <form id="auth-form">
       <!-- Register Extra Fields -->
       <div id="register-fields" class="hidden">
         <div class="form-group">
@@ -69,7 +69,7 @@
         <input type="password" id="confirm-password" placeholder="••••••••" />
       </div>
 
-      <button id="auth-action-btn" class="btn-primary">Login</button>
+      <button type="submit" id="auth-action-btn" class="btn-primary">Login</button>
       <p style="text-align: center; margin-top: 1.5rem; color: var(--muted); font-size: 0.9rem;">
         <span id="auth-toggle-text">No account?</span> <a href="#" id="toggle-auth-mode"
           style="color: var(--primary); font-weight: 600;">Register here</a>
@@ -78,7 +78,7 @@
         Are you an organizer? <a href="#" id="admin-ptr-link" style="color: inherit; text-decoration: underline;">Admin
           Portal</a>
       </p>
-    </div>
+    </form>
   </section>
 
   <!-- Dashboard Screen -->
